@@ -1,6 +1,6 @@
-// src/app/(studio)/StudioHeader.tsx
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -10,7 +10,39 @@ export function StudioHeader() {
   const router = useRouter();
   const isGiris = pathname === '/studio/giris';
 
-  if (isGiris) return null; // Hide header on login page
+  const [userName, setUserName] = useState<string>('Ajans Paneli');
+
+  useEffect(() => {
+    const supabase = createClient();
+    async function fetchUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const name = user.user_metadata?.display_name || user.user_metadata?.name || user.email || 'Ajans Paneli';
+        setUserName(name);
+      }
+    }
+    fetchUser();
+
+    // Subscribe to auth updates to dynamically sync name
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        const name = session.user.user_metadata?.display_name || session.user.user_metadata?.name || session.user.email || 'Ajans Paneli';
+        setUserName(name);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const initials = userName
+    .split(' ')
+    .filter(Boolean)
+    .map(n => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'AP';
 
   async function handleLogout() {
     const supabase = createClient();
@@ -18,6 +50,8 @@ export function StudioHeader() {
     router.push('/studio/giris');
     router.refresh();
   }
+
+  if (isGiris) return null; // Hide header on login page
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-150 no-print">
@@ -61,15 +95,19 @@ export function StudioHeader() {
 
         {/* Right Side: Admin Profile & Logout */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-gray-50 border border-gray-150 rounded-full pl-2 pr-3 py-1 text-left">
-            <div className="w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-600 uppercase">
-              AD
+          <Link
+            href="/studio/profil"
+            className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-150 rounded-full pl-2 pr-3 py-1 text-left transition-colors cursor-pointer select-none"
+            title="Profili Düzenle"
+          >
+            <div className="w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-600 uppercase shrink-0">
+              {initials}
             </div>
             <div>
-              <span className="text-[10px] font-bold text-gray-900 block leading-none">Ajans Paneli</span>
-              <span className="text-[8px] font-medium text-gray-400 block mt-0.5 leading-none">Yönetici</span>
+              <span className="text-[10px] font-bold text-gray-900 block leading-none truncate max-w-[80px]">{userName}</span>
+              <span className="text-[8px] font-medium text-gray-400 block mt-0.5 leading-none">Profil</span>
             </div>
-          </div>
+          </Link>
 
           <button
             type="button"
