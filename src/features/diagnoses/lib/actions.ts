@@ -839,6 +839,28 @@ export async function updateReportLockStatus(
   return { success: true }
 }
 
+// ── deleteDiagnosis ───────────────────────────────────────────────
+
+export async function deleteDiagnosis(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('diagnoses')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('[deleteDiagnosis] Supabase hatası:', error)
+    return { success: false, error: 'Marka silinemedi.' }
+  }
+
+  revalidatePath('/studio/marka101')
+  return { success: true }
+}
+
+
 
 
 

@@ -4,7 +4,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import type { Diagnosis, DiagnosisStatus } from '../../types';
-import { updateDiagnosisStatus } from '../../lib/actions';
+import { updateDiagnosisStatus, deleteDiagnosis } from '../../lib/actions';
 
 interface BrandListManagerProps {
   readonly diagnoses: Diagnosis[];
@@ -42,6 +42,11 @@ export function BrandListManager({ diagnoses }: BrandListManagerProps) {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
 
+  // Deletion Modal States
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingName, setDeletingName] = useState<string>('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Database Status Update Handler
   const handleStatusChange = async (id: string, nextStatus: DiagnosisStatus) => {
     setLocalDiagnoses(prev =>
@@ -51,6 +56,32 @@ export function BrandListManager({ diagnoses }: BrandListManagerProps) {
       await updateDiagnosisStatus(id, nextStatus);
     } catch (err) {
       console.error('[handleStatusChange] Error:', err);
+    }
+  };
+
+  // Deletion Handlers
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeletingId(id);
+    setDeletingName(name);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingId) return;
+    setIsDeleting(true);
+    try {
+      const res = await deleteDiagnosis(deletingId);
+      if (res.success) {
+        setLocalDiagnoses(prev => prev.filter(d => d.id !== deletingId));
+        setDeletingId(null);
+        setDeletingName('');
+      } else {
+        alert(res.error || 'Silme işlemi başarısız oldu.');
+      }
+    } catch (err) {
+      console.error('[confirmDelete] Error:', err);
+      alert('Silme işlemi sırasında bir hata oluştu.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -237,6 +268,14 @@ export function BrandListManager({ diagnoses }: BrandListManagerProps) {
                             Analiz Yap
                           </Link>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteClick(item.id, item.brand_name)}
+                          className="p-1.5 bg-red-950/20 hover:bg-red-900/30 text-red-400 hover:text-red-300 rounded border border-red-900/30 transition-all shrink-0 flex items-center justify-center cursor-pointer"
+                          title="Markayı Sil"
+                        >
+                          <span className="material-symbols-outlined text-[15px]">delete</span>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -253,6 +292,70 @@ export function BrandListManager({ diagnoses }: BrandListManagerProps) {
           </table>
         </div>
       </div>
+      
+      {/* Premium Deletion Confirmation Modal */}
+      {deletingId && (
+        <div 
+          className="fixed inset-0 bg-black/45 flex items-center justify-center z-[9999] p-4 animate-fade-in transition-all duration-300"
+          style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setDeletingId(null); }}
+        >
+          <div className="bg-[#0c0a18]/95 border border-white/10 w-full max-w-md rounded-xl shadow-[0_15px_50px_rgba(0,0,0,0.8)] p-6 space-y-6 text-[#c9c5d8] backdrop-blur-2xl relative animate-scale-up animate-duration-200">
+            
+            {/* Header / Title */}
+            <div className="flex items-center gap-4 text-red-500">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-2xl">warning</span>
+              </div>
+              <div>
+                <h3 className="text-base font-black text-white">Kaydı Sil</h3>
+                <p className="text-xs text-[#8c869e] mt-0.5">Bu işlem geri alınamaz.</p>
+              </div>
+            </div>
+
+            {/* Warning Body */}
+            <div className="space-y-2">
+              <p className="text-xs leading-relaxed text-[#c9c5d8]">
+                <strong className="text-white font-extrabold">{deletingName}</strong> isimli markaya ait tüm analiz verileri, skorlar ve raporlar kalıcı olarak silinecektir.
+              </p>
+              <p className="text-[11px] text-[#8c869e] leading-relaxed">
+                Devam etmek istediğinize emin misiniz?
+              </p>
+            </div>
+
+            {/* Actions Footer */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeletingId(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded text-xs font-bold text-[#8c869e] hover:text-[#f1ecf9] bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer disabled:opacity-50"
+              >
+                İptal
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded text-xs font-bold bg-red-500 hover:bg-red-600 text-white transition-all shadow-lg shadow-red-500/10 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                    <span>Siliniyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[15px]">delete</span>
+                    <span>Sil</span>
+                  </>
+                )}
+              </button>
+            </div>
+            
+          </div>
+        </div>
+      )}
     </div>
   );
 }

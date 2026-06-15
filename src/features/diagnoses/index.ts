@@ -43,6 +43,7 @@ export {
   updateDiagnosisStatus,
   saveLearningIntelligence,
   updateReportLockStatus,
+  deleteDiagnosis,
 } from './lib/actions'
 
 export {
