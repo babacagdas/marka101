@@ -900,13 +900,23 @@ export async function deleteDiagnosis(
 
       const projectNames = projectsData?.map(p => p.name) || [];
 
-      // Delete tasks associated with these projects
+      // Delete tasks associated with these projects or matching the brand name
       if (projectNames.length > 0) {
         await supabase
           .from('tasks')
           .delete()
           .in('project_name', projectNames)
       }
+      await supabase
+        .from('tasks')
+        .delete()
+        .ilike('project_name', `%${brandName}%`)
+
+      // Delete visual library records associated with these clients
+      await supabase
+        .from('visual_library')
+        .delete()
+        .in('client_id', clientIds)
 
       // Delete finances associated with these clients
       await supabase
@@ -926,11 +936,16 @@ export async function deleteDiagnosis(
         .delete()
         .in('client_id', clientIds)
 
-      // Delete projects
+      // Delete projects associated with these clients or client_name
       await supabase
         .from('projects')
         .delete()
         .in('client_id', clientIds)
+
+      await supabase
+        .from('projects')
+        .delete()
+        .eq('client_name', brandName)
 
       // Delete clients
       await supabase
@@ -957,6 +972,7 @@ export async function deleteDiagnosis(
     revalidatePath('/studio/gorevler')
     revalidatePath('/studio/teklifler')
     revalidatePath('/studio/finans')
+    revalidatePath('/studio/gorsel-kutuphane')
 
     return { success: true }
   } catch (err: any) {
