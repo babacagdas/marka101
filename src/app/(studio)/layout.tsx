@@ -261,6 +261,7 @@ export default function StudioLayout({ children }: { readonly children: React.Re
       name: 'Yönetim & Sistem',
       icon: 'settings',
       items: [
+        { name: 'Profilim', path: '/studio/profil', icon: 'account_circle' },
         { name: 'Freelancer & Tedarikçi', path: '/studio/freelancers', icon: 'engineering' },
         { name: 'Ekip & Yetki', path: '/studio/ekip', icon: 'badge' },
         { name: 'Ayarlar', path: '/studio/ayarlar', icon: 'settings_accessibility' },
