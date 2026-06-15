@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getDiagnosesList } from '@/features/diagnoses';
 import type { Diagnosis } from '@/features/diagnoses';
 import { BrandListManager } from '@/features/diagnoses/components/studio/BrandListManager';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Marka101 — Deep Creative Studio' };
@@ -13,6 +14,65 @@ export default async function StudioMarka101Page() {
     diagnoses = await getDiagnosesList();
   } catch {
     diagnoses = [];
+  }
+
+  // Automatic Cleanup of Orphaned CRM Records
+  try {
+    const supabase = createClient();
+    const activeBrandNames = new Set(diagnoses.map(d => d.brand_name.toLowerCase().trim()));
+
+    // 1. Clean up clients that don't match any active brand name
+    const { data: dbClients } = await supabase.from('clients').select('id, company_name');
+    const orphanedClients = (dbClients ?? []).filter(c => !activeBrandNames.has(c.company_name.toLowerCase().trim()));
+    
+    if (orphanedClients.length > 0) {
+      const clientIds = orphanedClients.map(c => c.id);
+      const clientNames = orphanedClients.map(c => c.company_name);
+
+      // Fetch projects for these clients
+      const { data: projectsData } = await supabase
+        .from('projects')
+        .select('id, name')
+        .in('client_id', clientIds);
+      const projectNames = projectsData?.map(p => p.name) || [];
+
+      // Delete visual library records
+      await supabase.from('visual_library').delete().in('client_id', clientIds);
+      // Delete finances
+      await supabase.from('finances').delete().in('client_id', clientIds);
+      // Delete documents
+      await supabase.from('documents').delete().in('client_id', clientIds);
+      // Delete meetings
+      await supabase.from('meetings').delete().in('client_id', clientIds);
+      
+      // Delete tasks
+      if (projectNames.length > 0) {
+        await supabase.from('tasks').delete().in('project_name', projectNames);
+      }
+      for (const name of clientNames) {
+        await supabase.from('tasks').delete().ilike('project_name', `%${name}%`);
+      }
+
+      // Delete projects
+      await supabase.from('projects').delete().in('client_id', clientIds);
+      for (const name of clientNames) {
+        await supabase.from('projects').delete().eq('client_name', name);
+      }
+
+      // Delete clients
+      await supabase.from('clients').delete().in('id', clientIds);
+    }
+
+    // 2. Clean up potentials/proposals that don't match active diagnoses
+    const { data: potentials } = await supabase.from('potentials').select('id, diagnosis_id');
+    const orphanedPotentials = (potentials ?? []).filter(p => !p.diagnosis_id || !diagnoses.some(d => d.id === p.diagnosis_id));
+    if (orphanedPotentials.length > 0) {
+      const potentialIds = orphanedPotentials.map(p => p.id);
+      await supabase.from('proposals').delete().in('potential_id', potentialIds);
+      await supabase.from('potentials').delete().in('id', potentialIds);
+    }
+  } catch (err) {
+    console.error('[Auto Cleanup] Error:', err);
   }
 
   return (
