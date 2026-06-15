@@ -27,6 +27,43 @@ function StudioTopHeader({ activeCategoryName }: { readonly activeCategoryName: 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
 
+  const [userEmail, setUserEmail] = useState<string>('elena.creative@deep.com');
+  const [userName, setUserName] = useState<string>('Elena Creative');
+
+  useEffect(() => {
+    const supabase = createClient();
+    async function fetchUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email ?? '');
+        const name = user.user_metadata?.display_name || user.user_metadata?.name || user.email || 'Ajans Paneli';
+        setUserName(name);
+      }
+    }
+    fetchUser();
+
+    // Subscribe to auth updates to dynamically sync name
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserEmail(session.user.email ?? '');
+        const name = session.user.user_metadata?.display_name || session.user.user_metadata?.name || session.user.email || 'Ajans Paneli';
+        setUserName(name);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const initials = userName
+    .split(' ')
+    .filter(Boolean)
+    .map(n => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'EC';
+
   const matches = useMemo(() => {
     if (!searchQuery.trim()) return { leads: [], projects: [], tasks: [] };
     const q = searchQuery.toLowerCase();
@@ -46,7 +83,7 @@ function StudioTopHeader({ activeCategoryName }: { readonly activeCategoryName: 
         <div className="w-1.5 h-7 bg-gradient-to-b from-[#4f20c0] to-[#b5179e] rounded-full" />
         <div>
           <h2 className="text-sm sm:text-base font-black text-[#f6f5fa] leading-tight poppins-important tracking-wide">
-            {pathname === '/studio/panel' ? 'İyi Günler, Elena' : activeCategoryName}
+            {pathname === '/studio/panel' ? `İyi Günler, ${userName.split(' ')[0]}` : activeCategoryName}
           </h2>
           <p className="text-[10px] text-[#928ca1] font-bold mt-0.5">
             {pathname === '/studio/panel' ? 'Haftalık ajans ve finansal güncellemelerinizi inceleyin.' : 'Deep Creative Yönetim Platformu'}
@@ -149,15 +186,18 @@ function StudioTopHeader({ activeCategoryName }: { readonly activeCategoryName: 
 
         <div className="h-4 w-[1px] bg-white/10" />
 
-        <div className="flex items-center gap-3">
+        <Link
+          href="/studio/profil"
+          className="flex items-center gap-3 hover:opacity-90 group transition-all cursor-pointer"
+        >
           <div className="text-right hidden sm:block">
-            <p className="text-xs sm:text-sm font-black text-[#f1ecf9] leading-tight poppins-important tracking-wide">Elena Creative</p>
-            <p className="text-[9px] font-bold text-[#8c869e] leading-tight">elena.creative@deep.com</p>
+            <p className="text-xs sm:text-sm font-black text-[#f1ecf9] leading-tight poppins-important tracking-wide group-hover:text-white transition-colors">{userName}</p>
+            <p className="text-[9px] font-bold text-[#8c869e] leading-tight mt-0.5">{userEmail}</p>
           </div>
-          <div className="w-9 h-9 rounded bg-gradient-to-br from-[#4f20c0] to-[#b5179e] text-white flex items-center justify-center text-xs font-black ring-2 ring-white/10 shadow-md shadow-purple-500/20">
-            EC
+          <div className="w-9 h-9 rounded bg-gradient-to-br from-[#4f20c0] to-[#b5179e] text-white flex items-center justify-center text-xs font-black ring-2 ring-white/10 shadow-md shadow-purple-500/20 group-hover:scale-105 transition-transform">
+            {initials}
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );
