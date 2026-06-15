@@ -2,26 +2,338 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ── Base Styles ────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    background: radial-gradient(circle at 10% 20%, rgba(243, 242, 250, 1) 0%, rgba(238, 242, 247, 1) 90%);
+    color: #2d3748;
+    font-family: 'Poppins', 'Inter', sans-serif;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
+/* ── Custom Component Utilities ─────────────────────────────── */
+@layer components {
+  /* Premium Soft Shadow */
+  .premium-shadow {
+    box-shadow: 
+      0px 10px 30px -5px rgba(103, 65, 217, 0.04),
+      0px 5px 15px -5px rgba(0, 0, 0, 0.02),
+      inset 0px 1px 0px rgba(255, 255, 255, 0.6);
+  }
+  
+  .premium-shadow-lg {
+    box-shadow: 
+      0px 20px 40px -10px rgba(103, 65, 217, 0.08),
+      0px 10px 20px -10px rgba(0, 0, 0, 0.03),
+      inset 0px 1px 0px rgba(255, 255, 255, 0.8);
+  }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /* Glassmorphic Panel (Main Background Cards) */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(30px) saturate(125%);
+    -webkit-backdrop-filter: blur(30px) saturate(125%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 
+      0px 25px 50px -12px rgba(103, 65, 217, 0.06),
+      inset 0px 1px 1px rgba(255, 255, 255, 0.8);
+  }
+
+  /* Glassmorphic Card (Dashboard Cards) */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px) saturate(110%);
+    -webkit-backdrop-filter: blur(20px) saturate(110%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 
+      0px 12px 30px -8px rgba(103, 65, 217, 0.05),
+      0px 4px 10px -8px rgba(0, 0, 0, 0.02),
+      inset 0px 1px 0px rgba(255, 255, 255, 0.9);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(103, 65, 217, 0.2);
+    box-shadow: 
+      0px 20px 35px -10px rgba(103, 65, 217, 0.1),
+      inset 0px 1px 0px rgba(255, 255, 255, 1);
+    transform: translateY(-3px);
+  }
+
+  /* Neumorphic Rounded Sidebar Capsule */
+  .sidebar-capsule {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 
+      0px 20px 40px -15px rgba(103, 65, 217, 0.1),
+      inset 0px 1px 0px rgba(255, 255, 255, 0.8);
+  }
+
+  /* Purple Premium Accent Card */
+  .purple-premium-card {
+    background: linear-gradient(135deg, #4f20c0 0%, #b5179e 100%);
+    box-shadow: 
+      0px 20px 40px -10px rgba(79, 32, 192, 0.3),
+      inset 0px 1px 1px rgba(255, 255, 255, 0.3);
+    color: #ffffff;
   }
 }
+
+/* ── Material Symbols ───────────────────────────────────────── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+  user-select: none;
+  line-height: 1;
+}
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes bg-rotate-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes bg-rotate-reverse {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes subtle-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes progress-loop {
+  0%   { left: -100%; }
+  100% { left: 100%; }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(15px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Progress indicator styles */
+.progress-line {
+  height: 3px;
+  background: rgba(103, 65, 217, 0.08);
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.progress-line::after {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #4f20c0, #b5179e);
+  animation: progress-loop 2s infinite linear;
+}
+
+/* Scrollbar Styling for Premium feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(103, 65, 217, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(103, 65, 217, 0.35);
+}
+
+/* ── Print Styles ───────────────────────────────────────────── */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .grid {
+    display: block !important;
+  }
+  .shadow-sm, .shadow-md, .shadow-lg, .premium-shadow, .premium-shadow-lg {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* ── Deep Creative Studio Premium Redesign Overrides ── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+.studio-root {
+  background: radial-gradient(circle at 50% 0%, #100d24 0%, #06050e 70%, #020104 100%) !important;
+  color: #c9c5d8 !important;
+  font-family: 'Outfit', 'Poppins', 'Inter', sans-serif !important;
+}
+
+.studio-root .glass-panel {
+  background: rgba(10, 8, 20, 0.65) !important;
+  backdrop-filter: blur(25px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 
+    0px 25px 60px -15px rgba(0, 0, 0, 0.6),
+    inset 0px 1px 0px rgba(255, 255, 255, 0.08) !important;
+}
+
+.studio-root .glass-card {
+  background: rgba(14, 11, 26, 0.5) !important;
+  backdrop-filter: blur(20px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(130%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 
+    0px 15px 35px -10px rgba(0, 0, 0, 0.4),
+    inset 0px 1px 0px rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.studio-root .glass-card-hover:hover {
+  background: rgba(20, 16, 36, 0.75) !important;
+  border-color: rgba(79, 32, 192, 0.35) !important;
+  box-shadow: 
+    0px 25px 45px -12px rgba(79, 32, 192, 0.2),
+    inset 0px 1px 0px rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-4px) !important;
+}
+
+.studio-root .sidebar-capsule {
+  background: rgba(9, 7, 18, 0.8) !important;
+  backdrop-filter: blur(35px) !important;
+  -webkit-backdrop-filter: blur(35px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  box-shadow: 
+    0px 25px 50px -20px rgba(0, 0, 0, 0.7),
+    inset 0px 1px 0px rgba(255, 255, 255, 0.05) !important;
+}
+
+.studio-root .purple-premium-card {
+  background: linear-gradient(135deg, #1c0e3a 0%, #0c051d 100%) !important;
+  border: 1px solid rgba(79, 32, 192, 0.3) !important;
+  box-shadow: 
+    0px 20px 45px -10px rgba(0, 0, 0, 0.5),
+    inset 0px 1px 0px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Elegant Text & Heading Rules */
+.studio-root h1, .studio-root h2, .studio-root h3, .studio-root h4, .studio-root h5 {
+  color: #f6f5fa !important;
+  font-family: 'Outfit', sans-serif !important;
+  letter-spacing: -0.015em !important;
+}
+
+.studio-root p {
+  color: #a39db5 !important;
+}
+
+/* Force dark readable colors on child classes */
+.studio-root .text-gray-800,
+.studio-root .text-gray-900,
+.studio-root .text-gray-950,
+.studio-root .text-gray-700,
+.studio-root .text-gray-750 {
+  color: #f1ecf9 !important;
+}
+
+.studio-root .text-gray-450,
+.studio-root .text-gray-500,
+.studio-root .text-gray-550,
+.studio-root .text-gray-650 {
+  color: #928ca1 !important;
+}
+
+.studio-root .text-gray-400 {
+  color: #7d778f !important;
+}
+
+/* Input Fields and Select Dropdowns in Studio */
+.studio-root input[type="text"],
+.studio-root input[type="email"],
+.studio-root input[type="password"],
+.studio-root select,
+.studio-root textarea {
+  background-color: rgba(14, 11, 26, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f1ecf9 !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.studio-root input[type="text"]:focus,
+.studio-root input[type="email"]:focus,
+.studio-root input[type="password"]:focus,
+.studio-root select:focus,
+.studio-root textarea:focus {
+  border-color: rgba(79, 32, 192, 0.6) !important;
+  box-shadow: 0 0 10px rgba(79, 32, 192, 0.25) !important;
+  outline: none !important;
+}
+
+/* Corporate gradients */
+.studio-root .bg-gradient-to-r.from-\[\#4f20c0\].to-\[\#b5179e\],
+.studio-root .bg-gradient-to-br.from-\[\#4f20c0\].to-\[\#b5179e\] {
+  background: linear-gradient(135deg, #4f20c0 0%, #b5179e 100%) !important;
+  border: 1px solid rgba(181, 23, 158, 0.2) !important;
+}
+
+.studio-root .bg-gradient-to-r.from-\[\#4f20c0\].to-\[\#b5179e\]:hover,
+.studio-root .bg-gradient-to-br.from-\[\#4f20c0\].to-\[\#b5179e\]:hover {
+  box-shadow: 0 8px 25px rgba(79, 32, 192, 0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Tables styling */
+.studio-root table {
+  background: transparent !important;
+}
+
+.studio-root tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+.studio-root tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.studio-root th {
+  background-color: rgba(14, 11, 26, 0.6) !important;
+  color: #928ca1 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Scrollbar Customization for Studio */
+.studio-root ::-webkit-scrollbar-thumb {
+  background: rgba(79, 32, 192, 0.3) !important;
+}
+
+.studio-root ::-webkit-scrollbar-thumb:hover {
+  background: rgba(181, 23, 158, 0.5) !important;
+}
+
+/* Custom Poppins font override utility */
+.studio-root .poppins-important {
+  font-family: var(--font-poppins), 'Poppins', sans-serif !important;
+}
+
+

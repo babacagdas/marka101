@@ -1,0 +1,35 @@
+// src/features/diagnoses/scoring/index.ts
+// engine.ts içindeki tüm export'ları re-export eder.
+export {
+  // Ana hesaplamalar
+  calculateDiagnosisResult,
+  buildTestFlow,
+  calculateCategoryScores,
+  calculateBrandHealthScore,
+  // Trigger
+  selectTriggers,
+  selectCoreTrigger,
+  selectSectorTrigger,
+  // Yardımcılar
+  answerToScore,
+  evidenceToScore,
+  getQuestionNormalizedScore,
+  // Risk / tip
+  determineRiskLevel,
+  determineBrandType,
+  detectRiskLabels,
+  detectImbalance,
+  // Kategori
+  getStrongestCategory,
+  getWeakestCategory,
+  // Sektör / satış
+  calculateSectorFit,
+  calculateSalesReadiness,
+  calculatePremiumPotential,
+  calculatePremiumPotentialFromAnswers,
+  calculateCreativePartnershipFit,
+  calculateLeadQuality,
+  determineLeadSegment,
+  detectConflictSignals,
+  determineConfidence,
+} from './engine'

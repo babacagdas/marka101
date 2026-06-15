@@ -1,0 +1,61 @@
+// src/features/diagnoses/index.ts
+// Tek barrel — DB tipleri + diagnosis engine + actions
+
+// ── DB tipleri ────────────────────────────────────────────────────────────
+export type {
+  Diagnosis,
+  DiagnosisStatus,
+  DiagnosisSource,
+  PublicFormData,
+} from './types'
+
+// ── Diagnosis engine tipleri ─────────────────────────────────────────────
+export type {
+  CategoryKey,
+  SectorKey,
+  BusinessModel,
+  BrandStage,
+  DiagnosisQuestion,
+  DiagnosisScores,
+  BrandContext,
+  DiagnosisAnswerValue,
+  DiagnosisAnswers,
+  DiagnosisOpenEnded,
+  RiskLevel,
+  Confidence,
+  LeadSegment,
+  CategoryScore,
+  BrandType,
+  RiskLabel,
+  ImbalanceAlert,
+  ConflictSignal,
+  TestFlow,
+  DiagnosisInput,
+  DiagnosisPublicSubmission,
+  EvidenceAnswer,
+  ScaleAnswer,
+} from './diagnosis-types'
+
+// ── Actions / Queries ────────────────────────────────────────────────────
+export { getDiagnosesList, getDiagnosisById } from './lib/queries'
+export { getAllDiagnoses, getDiagnosisById, submitPublicDiagnosis, submitDiagnosisWithContact } from './lib/actions'
+
+// ── Veri sabitleri ───────────────────────────────────────────────────────
+export {
+  CONTEXT_QUESTIONS,
+  CORE_QUESTIONS,
+  SECTOR_MODULES,
+  OPEN_ENDED_QUESTIONS,
+  CATEGORY_ORDER,
+  CATEGORY_WEIGHTS,
+  CATEGORIES,
+} from './data'
+
+// ── Skor motoru ──────────────────────────────────────────────────────────
+export {
+  calculateDiagnosisResult,
+  buildTestFlow,
+  calculateCategoryScores,
+  selectTriggers,
+  determineRiskLevel,
+} from './scoring'
