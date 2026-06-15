@@ -846,18 +846,123 @@ export async function deleteDiagnosis(
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = createClient()
 
-  const { error } = await supabase
+  // 1. Fetch diagnosis details (brand name) first
+  const { data: diagnosis, error: fetchError } = await supabase
     .from('diagnoses')
-    .delete()
+    .select('brand_name')
     .eq('id', id)
+    .single()
 
-  if (error) {
-    console.error('[deleteDiagnosis] Supabase hatası:', error)
-    return { success: false, error: 'Marka silinemedi.' }
+  if (fetchError || !diagnosis) {
+    console.error('[deleteDiagnosis] Fetch error:', fetchError)
+    return { success: false, error: 'Marka bulunamadı.' }
   }
 
-  revalidatePath('/studio/marka101')
-  return { success: true }
+  const brandName = diagnosis.brand_name;
+
+  try {
+    // 2. Delete from potentials and get their IDs to delete proposals
+    const { data: potentials, error: potFetchError } = await supabase
+      .from('potentials')
+      .select('id')
+      .eq('diagnosis_id', id)
+
+    if (!potFetchError && potentials && potentials.length > 0) {
+      const potentialIds = potentials.map(p => p.id);
+      
+      // Delete proposals linked to these potentials
+      await supabase
+        .from('proposals')
+        .delete()
+        .in('potential_id', potentialIds)
+
+      // Delete potentials themselves
+      await supabase
+        .from('potentials')
+        .delete()
+        .in('id', potentialIds)
+    }
+
+    // 3. Find and delete client records matching the brand name
+    const { data: clients, error: clientFetchError } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('company_name', brandName)
+
+    if (!clientFetchError && clients && clients.length > 0) {
+      const clientIds = clients.map(c => c.id);
+
+      // Fetch projects for these clients to delete tasks later
+      const { data: projectsData } = await supabase
+        .from('projects')
+        .select('id, name')
+        .in('client_id', clientIds)
+
+      const projectNames = projectsData?.map(p => p.name) || [];
+
+      // Delete tasks associated with these projects
+      if (projectNames.length > 0) {
+        await supabase
+          .from('tasks')
+          .delete()
+          .in('project_name', projectNames)
+      }
+
+      // Delete finances associated with these clients
+      await supabase
+        .from('finances')
+        .delete()
+        .in('client_id', clientIds)
+
+      // Delete documents associated with these clients
+      await supabase
+        .from('documents')
+        .delete()
+        .in('client_id', clientIds)
+
+      // Delete meetings associated with these clients
+      await supabase
+        .from('meetings')
+        .delete()
+        .in('client_id', clientIds)
+
+      // Delete projects
+      await supabase
+        .from('projects')
+        .delete()
+        .in('client_id', clientIds)
+
+      // Delete clients
+      await supabase
+        .from('clients')
+        .delete()
+        .in('id', clientIds)
+    }
+
+    // 4. Finally delete the diagnosis record itself
+    const { error: deleteError } = await supabase
+      .from('diagnoses')
+      .delete()
+      .eq('id', id)
+
+    if (deleteError) {
+      throw deleteError
+    }
+
+    // Revalidate all affected cache paths
+    revalidatePath('/studio/marka101')
+    revalidatePath('/studio/potansiyeller')
+    revalidatePath('/studio/musteriler')
+    revalidatePath('/studio/projeler')
+    revalidatePath('/studio/gorevler')
+    revalidatePath('/studio/teklifler')
+    revalidatePath('/studio/finans')
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('[deleteDiagnosis] Cascade delete error:', err)
+    return { success: false, error: err.message || 'Marka silinirken zincirleme hata oluştu.' }
+  }
 }
 
 
