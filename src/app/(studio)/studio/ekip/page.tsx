@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useAgency } from '@/features/diagnoses/components/studio/AgencyContext';
 
 interface TeamMember {
   id: string;
@@ -10,9 +11,11 @@ interface TeamMember {
   role: string;
   email: string;
   avatar_color?: string;
+  updated_at?: string;
 }
 
 export default function EkipPage() {
+  const { tasks } = useAgency();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -123,20 +126,37 @@ export default function EkipPage() {
                   Henüz bir ekip üyesi eklenmemiş.
                 </div>
               ) : (
-                members.map((member) => (
-                  <div key={member.id} className="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5 rounded hover:border-[#4f20c0]/30 transition-all text-xs font-bold text-[#f1ecf9]">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded bg-gradient-to-br ${member.avatar_color ?? 'from-[#4f20c0] to-[#b5179e]'} text-white flex items-center justify-center font-black text-[10px]`}>
-                        {member.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                members.map((member) => {
+                  const lastSeen = member.updated_at ? new Date(member.updated_at).getTime() : 0;
+                  const isOnline = Date.now() - lastSeen < 3 * 60 * 1000;
+
+                  return (
+                    <div key={member.id} className="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5 rounded hover:border-[#4f20c0]/30 transition-all text-xs font-bold text-[#f1ecf9]">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <div className={`w-8 h-8 rounded bg-gradient-to-br ${member.avatar_color ?? 'from-[#4f20c0] to-[#b5179e]'} text-white flex items-center justify-center font-black text-[10px]`}>
+                            {member.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                          </div>
+                          <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-[#06050b] ${
+                            isOnline ? 'bg-emerald-505 animate-pulse bg-emerald-500' : 'bg-gray-500'
+                          }`} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-black text-white">{member.name}</h4>
+                            <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-black ${
+                              isOnline ? 'bg-emerald-500/10 text-emerald-450' : 'bg-white/5 text-[#8c869e]'
+                            }`}>
+                              {isOnline ? 'Aktif' : 'Çevrimdışı'}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-[#8c869e] mt-0.5">{member.role}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-black text-white">{member.name}</h4>
-                        <p className="text-[10px] text-[#8c869e] mt-0.5">{member.role}</p>
-                      </div>
+                      <span className="text-[10px] text-[#8c869e] font-semibold">{member.email}</span>
                     </div>
-                    <span className="text-[10px] text-[#8c869e] font-semibold">{member.email}</span>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -144,11 +164,39 @@ export default function EkipPage() {
 
         <div className="glass-card rounded-md p-6 space-y-4 border border-white/5">
           <h3 className="text-xs font-black uppercase text-[#8c869e] tracking-wider">İş Yükü Dağılımı</h3>
-          <p className="text-xs font-bold text-[#8c869e] leading-relaxed">
-            {members.length === 0 
-              ? 'Şu anda kayıtlı bir ekip üyesi bulunmadığı için iş yükü dağılımı hesaplanamıyor.' 
-              : 'Ekip içi görev atamalarını bu panelden yönetebilirsiniz.'}
-          </p>
+          {members.length === 0 ? (
+            <p className="text-xs font-bold text-[#8c869e] leading-relaxed">
+              Şu anda kayıtlı bir ekip üyesi bulunmadığı için iş yükü dağılımı hesaplanamıyor.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {members.map((member) => {
+                const total = tasks.filter(t => t.assignee.name.toLowerCase() === member.name.toLowerCase()).length;
+                const active = tasks.filter(t => t.assignee.name.toLowerCase() === member.name.toLowerCase() && t.status !== 'done').length;
+                const completed = total - active;
+                const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                return (
+                  <div key={member.id} className="space-y-1 text-xs">
+                    <div className="flex justify-between font-bold">
+                      <span className="text-white">{member.name}</span>
+                      <span className="text-[#8c869e]">{active} Aktif / {total} Toplam</span>
+                    </div>
+                    <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-[#4f20c0] to-[#b5179e] h-1.5 rounded-full" 
+                        style={{ width: `${total > 0 ? completionRate : 0}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[9px] text-[#8c869e] font-semibold">
+                      <span>Tamamlanma Oranı</span>
+                      <span>%{completionRate}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 

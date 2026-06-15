@@ -1,8 +1,9 @@
 // src/app/(studio)/studio/gorevler/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAgency } from '@/features/diagnoses/components/studio/AgencyContext';
+import { createClient } from '@/lib/supabase/client';
 
 export default function GorevlerPage() {
   const { tasks, toggleTaskStatus, addNewTask, projects } = useAgency();
@@ -13,6 +14,23 @@ export default function GorevlerPage() {
   const [newTaskPriority, setNewTaskPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [newTaskDeadline, setNewTaskDeadline] = useState('15.06.2026');
 
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [selectedAssigneeId, setSelectedAssigneeId] = useState<string>('');
+
+  useEffect(() => {
+    async function fetchTeam() {
+      const supabase = createClient();
+      const { data } = await supabase.from('team_members').select('*').order('name');
+      if (data) {
+        setTeamMembers(data);
+        if (data.length > 0) {
+          setSelectedAssigneeId(data[0].id);
+        }
+      }
+    }
+    fetchTeam();
+  }, []);
+
   const handleToggleStatus = (id: string) => {
     toggleTaskStatus(id);
   };
@@ -21,10 +39,17 @@ export default function GorevlerPage() {
     e.preventDefault();
     if (!newTaskTitle.trim()) return;
 
+    const selectedMember = teamMembers.find(m => m.id === selectedAssigneeId);
+    const assignee = selectedMember ? {
+      name: selectedMember.name,
+      initials: selectedMember.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase(),
+      color: selectedMember.avatar_color || 'from-[#4f20c0] to-[#b5179e]'
+    } : { name: 'Elena Creative', initials: 'EC', color: 'from-[#4f20c0] to-[#b5179e]' };
+
     addNewTask({
       title: newTaskTitle.trim(),
       projectName: newTaskProject,
-      assignee: { name: 'Elena Creative', initials: 'EC', color: 'from-[#4f20c0] to-[#b5179e]' },
+      assignee: assignee,
       deadline: newTaskDeadline,
       priority: newTaskPriority,
     });
@@ -127,7 +152,7 @@ export default function GorevlerPage() {
                       {task.title}
                     </span>
                     <span className="text-[9px] text-[#8c869e] block font-bold mt-0.5">
-                      Proje: {task.projectName}
+                      Proje: {task.projectName} • <span className="text-white/60">Görevli: {task.assignee.name}</span>
                     </span>
                   </div>
                 </div>
@@ -192,6 +217,25 @@ export default function GorevlerPage() {
                     </option>
                   ))}
                   <option value="Genel İşler" className="bg-[#0e0b1a]">Genel İşler</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="task-assignee-selection" className="block text-[9px] font-bold text-[#8c869e] uppercase tracking-wider">Atanan Kişi</label>
+                <select
+                  id="task-assignee-selection"
+                  value={selectedAssigneeId}
+                  onChange={(e) => setSelectedAssigneeId(e.target.value)}
+                  className="w-full bg-[#0e0b1a] border border-white/10 rounded px-3 py-2.5 text-xs font-bold text-white focus:outline-none cursor-pointer hover:border-[#4f20c0] transition-all"
+                >
+                  {teamMembers.map((member) => (
+                    <option key={member.id} value={member.id} className="bg-[#0e0b1a]">
+                      {member.name} ({member.role})
+                    </option>
+                  ))}
+                  {teamMembers.length === 0 && (
+                    <option value="" className="bg-[#0e0b1a]">Elena Creative</option>
+                  )}
                 </select>
               </div>
 

@@ -32,12 +32,54 @@ function StudioTopHeader({ activeCategoryName }: { readonly activeCategoryName: 
 
   useEffect(() => {
     const supabase = createClient();
+    let intervalId: any;
+
+    async function syncTeamMember(user: any, displayName: string) {
+      try {
+        const email = user.email;
+        if (!email) return;
+
+        const { data: existing } = await supabase
+          .from('team_members')
+          .select('id')
+          .eq('email', email)
+          .maybeSingle();
+
+        if (existing) {
+          await supabase
+            .from('team_members')
+            .update({ 
+              updated_at: new Date().toISOString(),
+              name: displayName
+            })
+            .eq('id', existing.id);
+        } else {
+          await supabase
+            .from('team_members')
+            .insert({
+              name: displayName,
+              email: email,
+              role: 'Ajans Yöneticisi',
+              avatar_color: 'from-[#4f20c0] to-[#b5179e]'
+            });
+        }
+      } catch (err) {
+        console.error('Error syncing team member:', err);
+      }
+    }
+
     async function fetchUser() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserEmail(user.email ?? '');
         const name = user.user_metadata?.display_name || user.user_metadata?.name || user.email || 'Ajans Paneli';
         setUserName(name);
+        await syncTeamMember(user, name);
+
+        // Heartbeat every 60 seconds
+        intervalId = setInterval(() => {
+          syncTeamMember(user, name);
+        }, 60 * 1000);
       }
     }
     fetchUser();
@@ -48,11 +90,13 @@ function StudioTopHeader({ activeCategoryName }: { readonly activeCategoryName: 
         setUserEmail(session.user.email ?? '');
         const name = session.user.user_metadata?.display_name || session.user.user_metadata?.name || session.user.email || 'Ajans Paneli';
         setUserName(name);
+        syncTeamMember(session.user, name);
       }
     });
 
     return () => {
       subscription.unsubscribe();
+      if (intervalId) clearInterval(intervalId);
     };
   }, []);
 
