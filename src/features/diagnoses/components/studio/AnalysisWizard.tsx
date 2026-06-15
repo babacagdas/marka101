@@ -180,14 +180,14 @@ export function AnalysisWizard({ diagnosis }: AnalysisWizardProps) {
   }
 
   return (
-    <div className="glass-card rounded-md p-6 md:p-8 space-y-6 text-gray-700">
+    <div className="glass-card rounded-md p-6 md:p-8 space-y-6 text-[#c9c5d8]">
       {/* Step Progress Bar */}
       <div className="space-y-2">
-        <div className="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+        <div className="flex justify-between items-center text-[10px] font-bold text-[#8c869e] uppercase tracking-wider">
           <span>{stepDef.title}</span>
-          <span className="text-[#4f20c0] font-black">Adım {currentStep} / {WIZARD_STEPS.length}</span>
+          <span className="text-[#ccbdff] font-black">Adım {currentStep} / {WIZARD_STEPS.length}</span>
         </div>
-        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-[#0a0814] rounded-full overflow-hidden border border-white/5">
           <div
             className="h-full bg-gradient-to-r from-[#4f20c0] to-[#b5179e] rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / WIZARD_STEPS.length) * 100}%` }}
@@ -197,8 +197,8 @@ export function AnalysisWizard({ diagnosis }: AnalysisWizardProps) {
 
       <div className="space-y-5">
         <div>
-          <h2 className="text-base font-black text-gray-800 leading-tight">{stepDef.title}</h2>
-          <p className="text-xs text-gray-400 mt-1">{stepDef.description}</p>
+          <h2 className="text-base font-black text-white leading-tight">{stepDef.title}</h2>
+          <p className="text-xs text-[#8c869e] mt-1">{stepDef.description}</p>
         </div>
 
         {/* Sliders */}
@@ -206,16 +206,16 @@ export function AnalysisWizard({ diagnosis }: AnalysisWizardProps) {
           {stepDef.fields.map(f => {
             const val = formData[f.key];
             return (
-              <div key={f.key} className="space-y-2 bg-white border border-gray-150 rounded-md p-4 md:p-5 shadow-sm">
+              <div key={f.key} className="space-y-2 bg-[#0e0b1a]/50 border border-white/10 rounded-md p-4 md:p-5 shadow-inner">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <label className="text-xs font-black text-gray-800 block">{f.label}</label>
-                    <span className="text-[10px] text-gray-400 font-semibold mt-0.5 block">{f.tooltip}</span>
+                    <label className="text-xs font-black text-white block">{f.label}</label>
+                    <span className="text-[10px] text-[#8c869e] font-semibold mt-0.5 block">{f.tooltip}</span>
                   </div>
-                  <span className="text-sm font-black text-[#4f20c0] w-10 text-right tabular-nums">★ {val}</span>
+                  <span className="text-sm font-black text-purple-300 w-10 text-right tabular-nums">★ {val}</span>
                 </div>
                 <div className="pt-2 flex items-center gap-3">
-                  <span className="text-[10px] font-bold text-gray-400">1</span>
+                  <span className="text-[10px] font-bold text-[#8c869e]">1</span>
                   <input
                     type="range"
                     min="1"
@@ -223,9 +223,9 @@ export function AnalysisWizard({ diagnosis }: AnalysisWizardProps) {
                     step="1"
                     value={val}
                     onChange={e => handleSliderChange(f.key, parseInt(e.target.value))}
-                    className="flex-grow accent-[#4f20c0] h-1.5 bg-gray-150 rounded appearance-none cursor-pointer"
+                    className="flex-grow accent-[#4f20c0] h-1.5 bg-white/10 rounded appearance-none cursor-pointer"
                   />
-                  <span className="text-[10px] font-bold text-gray-400">10</span>
+                  <span className="text-[10px] font-bold text-[#8c869e]">10</span>
                 </div>
               </div>
             );
@@ -234,30 +234,30 @@ export function AnalysisWizard({ diagnosis }: AnalysisWizardProps) {
 
         {/* Notes */}
         <div className="space-y-2">
-          <label className="text-xs font-black text-gray-800 block">Değerlendirme Notları</label>
-          <span className="text-[10px] text-gray-400 font-semibold block">Bu adımdaki bulgularınız ve tavsiyeleriniz</span>
+          <label className="text-xs font-black text-white block">Değerlendirme Notları</label>
+          <span className="text-[10px] text-[#8c869e] font-semibold block">Bu adımdaki bulgularınız ve tavsiyeleriniz</span>
           <textarea
             rows={3}
             value={formData[`step_${currentStep}_notes`] || ''}
             onChange={e => handleNotesChange(e.target.value)}
             placeholder={`${stepDef.title} hakkında ajans notlarınızı buraya yazın...`}
-            className="w-full bg-white border border-gray-200 rounded px-4 py-3 text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#4f20c0] placeholder-gray-400 leading-relaxed"
+            className="w-full bg-[#0e0b1a]/85 border border-white/10 rounded px-4 py-3 text-xs font-semibold text-white focus:outline-none focus:border-[#4f20c0] placeholder-[#7d778f] leading-relaxed"
           />
         </div>
 
         {error && (
-          <div className="p-3.5 bg-red-50 border border-red-200 text-red-600 text-xs font-bold rounded-sm">
+          <div className="p-3.5 bg-red-950/20 border border-red-900/30 text-red-400 text-xs font-bold rounded-sm">
             {error}
           </div>
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between pt-4 border-t border-white/5">
           <button
             type="button"
             disabled={currentStep === 1 || isLoading}
             onClick={handleBack}
-            className="px-4 py-2 border border-gray-200 bg-white text-gray-500 hover:text-gray-800 font-bold text-xs rounded disabled:opacity-30 transition-all"
+            className="px-4 py-2 border border-white/10 bg-[#0e0b1a] text-[#8c869e] hover:text-white font-bold text-xs rounded disabled:opacity-30 transition-all cursor-pointer"
           >
             ← Geri
           </button>
@@ -267,7 +267,7 @@ export function AnalysisWizard({ diagnosis }: AnalysisWizardProps) {
               type="button"
               disabled={isLoading}
               onClick={handleSubmit}
-              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded disabled:opacity-50 transition-all"
+              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded disabled:opacity-50 transition-all cursor-pointer"
             >
               {isLoading ? 'Değerlendiriliyor...' : 'Değerlendirmeyi Tamamla ve Kaydet'}
             </button>
@@ -276,7 +276,7 @@ export function AnalysisWizard({ diagnosis }: AnalysisWizardProps) {
               type="button"
               disabled={isLoading}
               onClick={handleNext}
-              className="px-5 py-2.5 bg-gradient-to-r from-[#4f20c0] to-[#b5179e] hover:scale-[1.02] text-white font-bold text-xs rounded disabled:opacity-50 transition-all shadow-md shadow-purple-500/10"
+              className="px-5 py-2.5 bg-gradient-to-r from-[#4f20c0] to-[#b5179e] hover:scale-[1.02] text-white font-bold text-xs rounded disabled:opacity-50 transition-all shadow-md shadow-purple-500/10 cursor-pointer"
             >
               {isLoading ? 'Kaydediliyor...' : 'Kaydet ve İlerle →'}
             </button>
