@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAgency } from '@/features/diagnoses/components/studio/AgencyContext';
 import { createClient } from '@/lib/supabase/client';
+import { logActivity } from '@/lib/supabase/activity';
 
 export default function GorevlerPage() {
   const { tasks, toggleTaskStatus, addNewTask, projects } = useAgency();
@@ -32,6 +33,11 @@ export default function GorevlerPage() {
   }, []);
 
   const handleToggleStatus = (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+      const nextStatusStr = task.status === 'done' ? 'Yapılacak' : 'Tamamlandı';
+      logActivity('task_status_change', `"${task.title}" görevini "${nextStatusStr}" olarak işaretledi.`);
+    }
     toggleTaskStatus(id);
   };
 
@@ -54,6 +60,7 @@ export default function GorevlerPage() {
       priority: newTaskPriority,
     });
 
+    logActivity('task_assign', `"${assignee.name}" isimli üyeye "${newTaskTitle.trim()}" görevini atadı.`);
     setNewTaskTitle('');
   };  const priorityColors = {
     low: 'text-[#8c869e] bg-white/5 border-white/5',

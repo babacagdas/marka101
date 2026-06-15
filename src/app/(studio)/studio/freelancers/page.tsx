@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { logActivity } from '@/lib/supabase/activity';
 
 interface Freelancer {
   id: string;
@@ -332,6 +333,7 @@ export default function FreelancersPage() {
           if (selectedPartner?.id === editId) {
             setSelectedPartner(data);
           }
+          logActivity('freelancer_update', `"${name.trim()}" isimli iş ortağı/tedarikçi kaydını güncelledi.`);
           setShowFormModal(false);
         }
       } else {
@@ -345,6 +347,7 @@ export default function FreelancersPage() {
         if (error) throw error;
         if (data) {
           setPartners((prev) => [data, ...prev]);
+          logActivity('freelancer_add', `"${name.trim()}" isimli yeni bir iş ortağı/tedarikçi ekledi.`);
           setShowFormModal(false);
         }
       }
@@ -408,6 +411,8 @@ export default function FreelancersPage() {
 
   // Delete partner
   const handleDelete = async (id: string) => {
+    const deletedPartner = partners.find((p) => p.id === id);
+    if (!deletedPartner) return;
     if (!confirm('Bu kaydı tamamen silmek istediğinizden emin misiniz?')) return;
     try {
       const supabase = createClient();
@@ -421,6 +426,7 @@ export default function FreelancersPage() {
       if (selectedPartner?.id === id) {
         setSelectedPartner(null);
       }
+      logActivity('freelancer_delete', `"${deletedPartner.name}" isimli iş ortağı/tedarikçi kaydını sildi.`);
     } catch (err) {
       console.error('Error deleting partner:', err);
     }

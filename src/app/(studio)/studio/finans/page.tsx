@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useAgency } from '@/features/diagnoses/components/studio/AgencyContext';
+import { logActivity } from '@/lib/supabase/activity';
 
 interface FinanceRecord {
   id: string;
@@ -259,12 +260,14 @@ export default function FinansPage() {
           .update(recordData)
           .eq('id', editingRecord.id);
         if (error) throw error;
+        logActivity('payment_update', `"${formTitle.trim()}" isimli finans kaydını güncelledi.`);
         showToast(`"${formTitle.trim()}" başarıyla güncellendi.`);
       } else {
         const { error } = await supabase
           .from('finances')
           .insert(recordData);
         if (error) throw error;
+        logActivity('payment_made', `"${formTitle.trim()}" isimli yeni bir finans kaydı (${type === 'income' ? 'gelir' : 'gider'}) ekledi.`);
         showToast(`"${formTitle.trim()}" işlemi eklendi.`);
       }
       setIsIncomeDrawerOpen(false);
@@ -276,6 +279,8 @@ export default function FinansPage() {
   };
 
   const handleDelete = async (id: string) => {
+    const deletedRecord = records.find(r => r.id === id);
+    if (!deletedRecord) return;
     if (!confirm('Bu finans işlemini silmek istediğinize emin misiniz?')) return;
     try {
       const { error } = await supabase
@@ -283,6 +288,7 @@ export default function FinansPage() {
         .delete()
         .eq('id', id);
       if (error) throw error;
+      logActivity('payment_delete', `"${deletedRecord.title}" isimli finans kaydını sildi.`);
       showToast('Kayıt silindi.');
       fetchFinances();
     } catch (err) {
