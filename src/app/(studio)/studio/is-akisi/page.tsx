@@ -36,50 +36,6 @@ const ACTION_LABELS: Record<string, string> = {
   payment_delete: 'Finans Kaydı Silindi',
 };
 
-// Seed/Fallback logs if DB table doesn't exist or is empty
-const SEED_LOGS: ActivityLog[] = [
-  {
-    id: 'seed-1',
-    user_name: 'Elena Creative',
-    user_email: 'elena.creative@deep.com',
-    action_type: 'freelancer_add',
-    description: '"Can Demir (Grafik Tasarımcı)" isimli yeni bir iş ortağı/tedarikçi ekledi.',
-    created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 mins ago
-  },
-  {
-    id: 'seed-2',
-    user_name: 'Ahmet Yılmaz',
-    user_email: 'ahmet.yilmaz@deep.com',
-    action_type: 'task_assign',
-    description: '"Can Demir" isimli üyeye "Matbaa için Kurumsal Broşür Tasarımı" görevini atadı.',
-    created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 mins ago
-  },
-  {
-    id: 'seed-3',
-    user_name: 'Elena Creative',
-    user_email: 'elena.creative@deep.com',
-    action_type: 'payment_made',
-    description: '"Adobe CC Yıllık Lisans Aboneliği" isimli yeni bir finans kaydı (gider) ekledi.',
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-  },
-  {
-    id: 'seed-4',
-    user_name: 'Ahmet Yılmaz',
-    user_email: 'ahmet.yilmaz@deep.com',
-    action_type: 'task_status_change',
-    description: '"SNC Mimarlık Ön Analizi" görevini "Tamamlandı" olarak işaretledi.',
-    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
-  },
-  {
-    id: 'seed-5',
-    user_name: 'Elena Creative',
-    user_email: 'elena.creative@deep.com',
-    action_type: 'payment_made',
-    description: '"SNC Mimarlık Danışmanlık Ücreti" isimli yeni bir finans kaydı (gelir) ekledi.',
-    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-  }
-];
-
 export default function IsAkisiPage() {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -96,18 +52,14 @@ export default function IsAkisiPage() {
           .order('created_at', { ascending: false });
 
         if (error) {
-          // Table doesn't exist yet or other query error, use seed logs
-          console.warn('[IsAkisiPage] Table activity_logs not found, loading seed logs instead.', error.message);
-          setLogs(SEED_LOGS);
-        } else if (data && data.length > 0) {
+          console.warn('[IsAkisiPage] Table activity_logs query failed or does not exist.', error.message);
+          setLogs([]);
+        } else if (data) {
           setLogs(data);
-        } else {
-          // Empty table, load seed data to show something beautiful
-          setLogs(SEED_LOGS);
         }
       } catch (err) {
         console.error('Error loading logs:', err);
-        setLogs(SEED_LOGS);
+        setLogs([]);
       } finally {
         setIsLoading(false);
       }
