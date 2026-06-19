@@ -19,7 +19,7 @@ export type QuestionLayer =
 export type SectorKey =
   | "health" | "realestate" | "b2b_industrial" | "general";
 
-export type BusinessModel = "b2b" | "b2c" | "hybrid";
+export type BusinessModel = "b2b" | "b2c" | "hybrid_b2c" | "hybrid_b2b";
 
 export type BrandStage =
   | "startup" | "growth" | "corporate" | "premium" | "repositioning";
@@ -281,6 +281,8 @@ export interface DiagnosisPublicSubmission {
   readonly sectorAnswers:    Record<string, DiagnosisAnswerValue>;
   readonly triggerAnswers:   Record<string, DiagnosisAnswerValue>;
   readonly openEndedAnswers: DiagnosisOpenEnded;
+  readonly brandBudget?: string;     // BG-06 cevabı
+  readonly agencyStatus?: string;    // BG-07 cevabı
   readonly scores: {
     readonly brandHealth:         number;
     readonly sectorFit:           number;

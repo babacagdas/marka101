@@ -26,17 +26,19 @@ export const CORE_QUESTIONS: readonly DiagnosisQuestion[] = [
     )
   },
   {
-    id: "MN-C02", layer: "core", category: "brandClarity", type: "scale", weight: 3,
-    title: "Farklılaşma Kanıtı",
-    text: '"Neden sizi seçmeliyim?" sorusuna ekibiniz ne kadar net ve tutarlı yanıt verebiliyor?',
-    tooltip: "Sektördeki diğer alternatiflerden sizi ayıran somut ve özgün nedenler.",
-    options: sc("MN-C02",
-      "Net bir yanıt yok, herkes farklı şey söylüyor",
-      "Genel bir cevabımız var ama güçlü ve özgün değil",
-      "İyi bir cevabımız var ama rakibimiz de aynısını söyleyebilir",
-      "Güçlü ve tutarlı bir farklılaşma argümanımız var",
-      "Test edilmiş, müşteride karşılık bulan özgün bir argümanımız var"
-    )
+    id:       "MN-C02",
+    layer:    "core",
+    category: "brandClarity",
+    type:     "evidence",
+    weight:   3,
+    title:    "Farklılaşma Kanıtı",
+    text:     '"Neden sizi seçmeliyim?" sorusuna ekibiniz ne kadar net ve tutarlı yanıt verebiliyor?',
+    tooltip:  "Bu argümanı rakiplerinizden biri de söyleyebilir mi? Söyleyebiliyorsa henüz gerçek farklılaşma değil.",
+    options: [
+      { value: "hayır",  label: "Net bir yanıt yok ya da herkes farklı şey söylüyor" },
+      { value: "kısmen", label: "Bir cevabımız var ama rakibimiz de aynısını söyleyebilir" },
+      { value: "evet",   label: "Güçlü, test edilmiş ve tutarlı bir farklılaşma argümanımız var" },
+    ],
   },
   {
     id: "MN-C03", layer: "core", category: "brandClarity", type: "scale", weight: 2,

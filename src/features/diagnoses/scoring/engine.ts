@@ -89,9 +89,13 @@ export function answerToScore(
 ): number {
   switch (question.type) {
     case "scale": {
-      if (isScaleAnswer(answer)) return answer;
+      if (isScaleAnswer(answer)) {
+        return question.reverseScored ? (6 - answer) as ScaleAnswer : answer;
+      }
       const n = Number(answer);
-      if (!isNaN(n) && n >= 1 && n <= 5) return n as ScaleAnswer;
+      if (!isNaN(n) && n >= 1 && n <= 5) {
+        return question.reverseScored ? (6 - n) as ScaleAnswer : n as ScaleAnswer;
+      }
       return 0;
     }
     case "evidence": {
@@ -265,12 +269,12 @@ export function calculateSectorFit(
   const module = SECTOR_MODULES[sector];
   if (!module) return 0;
   const B2B_BOOST = new Set(["SM-B01","SM-B02","SM-H01","SM-H02","SM-R02","SM-G02"]);
-  const b2bMult   = businessModel === "b2b" ? 1.15 : 1.0;
+  const b2bMult   = (businessModel === "b2b" || businessModel === "hybrid_b2b") ? 1.15 : 1.0;
   let rawScore = 0, maxScore = 0;
   for (const q of module.questions) {
     const answer = answers[q.id];
     if (answer === undefined) continue;
-    const mult = B2B_BOOST.has(q.id) && businessModel !== "b2c" ? b2bMult : 1.0;
+    const mult = B2B_BOOST.has(q.id) && (businessModel !== "b2c" && businessModel !== "hybrid_b2c") ? b2bMult : 1.0;
     rawScore += answerToScore(q, answer) * q.weight * mult;
     maxScore += 5 * q.weight * mult;
   }
@@ -579,9 +583,9 @@ export function computeExplainability(
 
   const bg02 = context.businessModel;
   const bg05 = context.mainProblem;
-  if (bg02 === "hybrid" || bg05 === "cant_convert" || bg05 === "no_leads") {
+  if (bg02 === "hybrid_b2c" || bg02 === "hybrid_b2b" || bg05 === "cant_convert" || bg05 === "no_leads") {
     const reasons: string[] = [];
-    if (bg02 === "hybrid") reasons.push("B2B ve B2C karma yapısı");
+    if (bg02 === "hybrid_b2c" || bg02 === "hybrid_b2b") reasons.push("B2B ve B2C karma yapısı");
     if (bg05 === "cant_convert") reasons.push("İkna/satış dönüşüm sorunu");
     if (bg05 === "no_leads") reasons.push("Müşteri bulamama problemi");
     activeSignals.push({

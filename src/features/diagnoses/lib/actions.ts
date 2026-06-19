@@ -124,7 +124,7 @@ export async function submitDiagnosisWithContact(
   }
 
   // Cevapları katmanlara ayır
-  const CONTEXT_IDS  = new Set(['BG-01','BG-02','BG-03','BG-04','BG-05'])
+  const CONTEXT_IDS  = new Set(['BG-01','BG-02','BG-03','BG-04','BG-05','BG-06','BG-07'])
   const CORE_PFXS    = ['MN-','PA-','ST-','DG-','KS-','FD-']
   const SECTOR_PFXS  = ['SM-']
   const TRIGGER_PFXS = ['TR-']
@@ -148,6 +148,8 @@ export async function submitDiagnosisWithContact(
     sectorAnswers,
     triggerAnswers,
     openEndedAnswers: session.openEnded,
+    brandBudget:      contextAnswers['BG-06'] as string | undefined,
+    agencyStatus:     contextAnswers['BG-07'] as string | undefined,
     scores:           session.scores,
     questionsServed:  session.questionsServed,
     completionRate:   session.completionRate,

@@ -309,7 +309,7 @@ const scenarios: TestScenario[] = [
     description: "Marka kim olduğunu, kime hitap ettiğini ve rakiplerinden nasıl ayrıştığını hiçbir kanalda ifade edemiyor; tüm skorlar kritik seviyede.",
     context: {
       sector: "general",
-      businessModel: "hybrid",
+      businessModel: "hybrid_b2c",
       brandStage: "repositioning", // Yeniden konumlanıyor
       growthGoal: "new_market",
       mainProblem: "no_differentiation"

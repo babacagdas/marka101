@@ -24,7 +24,7 @@ type WizardScreen =
   | "trigger" | "openEnded" | "loading" | "preScore" | "leadForm" | "fullReport";
 
 const VALID_SECTORS      = ["health","realestate","b2b_industrial","general"] as const;
-const VALID_BIZ_MODELS   = ["b2b","b2c","hybrid"] as const;
+const VALID_BIZ_MODELS   = ["b2b","b2c","hybrid_b2c","hybrid_b2b"] as const;
 const VALID_BRAND_STAGES = ["startup","growth","corporate","premium","repositioning"] as const;
 
 function isSectorKey(v: unknown): v is SectorKey {
@@ -43,9 +43,8 @@ function getSectorKey(v: unknown): SectorKey {
 }
 
 function getBusinessModel(v: unknown): BusinessModel {
-  if (v === "b2b" || v === "hybrid_b2b") return "b2b";
-  if (v === "b2c" || v === "hybrid_b2c") return "b2c";
-  return "hybrid";
+  if (v === "b2b" || v === "b2c" || v === "hybrid_b2c" || v === "hybrid_b2b") return v as BusinessModel;
+  return "b2c";
 }
 
 function buildBrandContext(ca: Readonly<Record<string, DiagnosisAnswerValue>>): BrandContext | null {
