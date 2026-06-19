@@ -1,89 +1,195 @@
 import type { DiagnosisQuestion } from "../diagnosis-types";
 
-function sc(l: readonly [string,string,string,string,string]): DiagnosisQuestion["options"] {
-  return [{ value:1,label:l[0] },{ value:2,label:l[1] },{ value:3,label:l[2] },{ value:4,label:l[3] },{ value:5,label:l[4] }];
-}
-function ev(e:string,k:string,h:string): DiagnosisQuestion["options"] {
-  return [{ value:"evet",label:e },{ value:"kısmen",label:k },{ value:"hayır",label:h }];
+function sc(id: string, label1: string, label2: string, label3: string, label4: string, label5: string) {
+  return [
+    { value: 1, label: label1 },
+    { value: 2, label: label2 },
+    { value: 3, label: label3 },
+    { value: 4, label: label4 },
+    { value: 5, label: label5 },
+  ] as const;
 }
 
 export const CORE_QUESTIONS: readonly DiagnosisQuestion[] = [
-  { id:"MN-C01", layer:"core", category:"brandClarity", type:"scale", weight:3,
-    title:"Konumlandırma Tanımı",
-    text:"Markanızın ne yaptığını, kime hitap ettiğini ve rakiplerinden nasıl ayrıştığını tek bir net paragrafla açıklayabilir misiniz?",
-    tooltip:"Kendinize sorun: bu tanımı bir müşteriye veya yeni bir çalışana aynı biçimde aktarabilir misiniz?",
-    options: sc(["Böyle bir tanım hiç oluşturulmadı","Aklımda şekilleniyor ama yazılı ve net değil","Genel bir tanımımız var, henüz olgunlaşmamış","Yazılı ve ekiple paylaşılmış bir tanımımız var","Net, tutarlı ve aktif kullandığımız bir konumlandırma belgemiz var"]) },
-  { id:"MN-C02", layer:"core", category:"brandClarity", type:"evidence", weight:3,
-    title:"Farklılaşma Kanıtı",
-    text:'"Neden sizi seçmeliyim?" sorusuna ekibiniz ne kadar net ve tutarlı yanıt verebiliyor?',
-    tooltip:"Bu argümanı rakiplerinizden biri de söyleyebilir mi?",
-    options: ev("Güçlü, test edilmiş ve tutarlı bir farklılaşma argümanımız var","Genel bir cevabımız var ama güçlü ve özgün değil","Net bir yanıt yok ya da herkes farklı şey söylüyor") },
-  { id:"MN-C03", layer:"core", category:"brandClarity", type:"scale", weight:2,
-    title:"Mesaj Tutarlılığı",
-    text:"Markanızın temel mesajı ve konumlandırması; web sitenizde, sosyal medyada ve satış görüşmelerinde aynı şekilde mi yansıyor?",
-    tooltip:"Bir müşteri sizi üç farklı kanaldan görse aynı markayı hisseder mi?",
-    options: sc(["Her kanalda farklı bir marka gibi görünüyoruz","Tutarsızlık belirgin","Çoğunlukla benzer, zaman zaman kopukluk oluyor","Genel olarak tutarlı, küçük sapmalar var","Tüm kanallarda bütünleşik ve tanınabilir bir mesaj var"]) },
-  { id:"PA-C01", layer:"core", category:"premiumPerception", type:"scale", weight:3,
-    title:"Görsel Kimlik Kalitesi",
-    text:"Markanızın görsel kimliğini — logo, renkler, tipografi, görsel dil — hedef kitleniz için genel kalite düzeyinde nasıl değerlendiriyorsunuz?",
-    tooltip:"Bu soruyu değerlendirirken bir rakibinizin görsel kimliğiyle karşılaştırın.",
-    options: sc(["Sektörümüzdeki beklentinin altında kaldığını düşünüyorum","Yeterince güçlü değil, farkındayım","Yeterli ama öne çıkmıyor","Sektörde iyi bir izlenim bırakıyor","Güçlü, tutarlı ve tanınabilir bir görsel kimliğimiz var"]) },
-  { id:"PA-C02", layer:"core", category:"premiumPerception", type:"evidence", weight:3,
-    title:"Profesyonel Tasarım Kanıtı",
-    text:"Görsel kimliğiniz son 3 yıl içinde profesyonel bir ekip tarafından tasarlandı veya güncellendi mi?",
-    tooltip:'"Profesyonel ekip": sonuç size ait bir sistem mi yarattı?',
-    options: ev("Evet; sistematik, kapsamlı ve yakın zamanda gerçekleşti","Kısmen güncellendi ama bütünleşik bir revizyon değildi","Hayır; ya çok eski ya da profesyonel dokunuş almamış") },
-  { id:"PA-C03", layer:"core", category:"premiumPerception", type:"evidence", weight:2,
-    reverseScored:true,
-    title:"Fiyat İtirazı Sıklığı",
-    text:"Satış görüşmelerinde potansiyel müşterilerden fiyatla ilgili itiraz ya da olumsuz geri bildirim ne sıklıkla alıyorsunuz?",
-    tooltip:"Fiyat itirazı çoğunlukla fiyatın değil, algının sorunudur. Bu soru ters puanlanır.",
-    options: ev("Neredeyse her görüşmede fiyat sorgulanıyor","Zaman zaman alıyoruz","Fiyat, sunduğumuz değerin doğal karşılığı olarak kabul görüyor") },
-  { id:"ST-C01", layer:"core", category:"storytelling", type:"scale", weight:3,
-    title:"Marka Hikâyesi",
-    text:"Markanızın neden var olduğunu, ne için çalıştığını anlatan bir hikâye var mı? Bu hikâye müşterilerinizle aktif olarak paylaşılıyor mu?",
-    tooltip:"Markanızın hikâyesi bir müşteriyi neden önemsemeli?",
-    options: sc(["Böyle bir hikâye hiç tanımlanmadı","Genel bir fikir var ama hikâye olarak şekillenmemiş",'"Hakkımızda" metni var ama derin bir anlatı değil',"Net ve duygusal bir hikâyemiz var, zaman zaman kullanıyoruz","Tanımlanmış, aktif kullanılan ve müşteride karşılık bulan bir marka hikâyemiz var"]) },
-  { id:"ST-C02", layer:"core", category:"storytelling", type:"evidence", weight:2,
-    title:"Marka Sesi Kanıtı",
-    text:"Markanızın iletişim tonunu ve sesini tanımlayan yazılı bir kılavuz veya belgelenmiş bir ton profili var mı?",
-    tooltip:"Bu kılavuz yarın yeni bir içerik üreticiye verilseydi markanızı doğru sesle anlatabilir miydi?",
-    options: ev("Evet; kapsamlı, güncel ve ekip genelinde aktif kullanılıyor","Kısmi; sözlü bir uzlaşı var ya da notlar mevcut ama yazılı değil","Hayır; her içerik üretende farklı bir tona kayıyor") },
-  { id:"DG-C01", layer:"core", category:"digitalTrust", type:"scale", weight:3,
-    title:"Web Sitesi İzlenimi",
-    text:"Web sitenizin, ziyaret eden bir potansiyel müşteri için güvenilir ve tercih edilebilir bir izlenim oluşturduğunu düşünüyor musunuz?",
-    tooltip:"Bir müşteri sitenizi ilk kez 10 saniye gördüğünde ne düşünür?",
-    options: sc(["Web sitemiz güçlü bir izlenim bırakmıyor, farkındayız","Yeterli değil ama geçici olarak işe yarıyor","Yeterli bir etki bırakıyor ama güçlü bir satış aracı değil","Güvenilir bir izlenim veriyor, müşteri kararını destekliyor","Web sitemiz güçlü güven kuruyor ve dönüşümü aktif destekliyor"]) },
-  { id:"DG-C02", layer:"core", category:"digitalTrust", type:"evidence", weight:3,
-    title:"Sosyal Kanıt Görünürlüğü",
-    text:"Müşteri referanslarınız, yorumlarınız veya vaka çalışmalarınız dijitalde görünür ve erişilebilir mi?",
-    tooltip:"Sosyal kanıt; memnun müşterilerinizin sizin yerinize konuşmasıdır.",
-    options: ev("Evet; güçlü, erişilebilir ve aktif kullanılıyor","Var ama görünür değil ya da stratejik değil","Hayır; sosyal kanıt yok ya da neredeyse yok") },
-  { id:"KS-C01", layer:"core", category:"creativeSystem", type:"evidence", weight:3,
-    title:"Marka Kılavuzu",
-    text:"Markanız için hazırlanmış bir marka kılavuzu — brand guidelines — belgesi var mı?",
-    tooltip:"Marka kılavuzu; logo değil, bir karar çerçevesidir.",
-    options: ev("Evet; kapsamlı, güncel ve ekip tarafından aktif kullanılıyor","Var ama eksik ya da güncelliğini yitirmiş","Hayır; yok") },
-  { id:"KS-C02", layer:"core", category:"creativeSystem", type:"scale", weight:2,
-    title:"Platform Kimlik Bütünlüğü",
-    text:"Markanızın görsel ve tonal kimliği; farklı platformlara aynı anda bakıldığında tek bir bütünü mü çağrıştırıyor?",
-    tooltip:"Instagram, LinkedIn ve web sitenizi aynı anda açın. Üçü de aynı markayı anlatıyor mu?",
-    options: sc(["Her platform sanki farklı bir markaya ait gibi görünüyor","Benzerlik var ama bütünlük hissedilmiyor","Belirli bir benzerlik var ama sistem bütünlüğü yok","Büyük ölçüde bütünleşik, ince sapmalar olabiliyor","Tüm platformlar güçlü, bütünleşik bir kimlik sistemi oluşturuyor"]) },
-  { id:"FD-C01", layer:"core", category:"creativeSystem", type:"evidence", weight:3,
-    title:"Satışların Sürdürülebilirliği",
-    text:"Satış süreçleriniz kurucu olmadan kendi kendine devam edebilir mi?",
-    tooltip:"Kurucu tatildeyken veya işten uzaklaştığında satışlar durur mu?",
-    options: ev("Evet; kurucudan bağımsız bir satış ekibi/sistem var","Kısmen; kurucu desteği olmadan satışlar yavaşlıyor","Hayır; tüm satış tamamen kurucuya bağlı") },
-  { id:"FD-C02", layer:"core", category:"creativeSystem", type:"evidence", weight:3,
-    title:"Müşteri İlişkileri Yönetimi",
-    text:"Müşteri ilişkileri ve takipleri sistemle (CRM vb.) mi yönetiliyor?",
-    tooltip:"Müşteri takibi kurucunun şahsi hafızasına veya notlarına mı bağlı?",
-    options: ev("Evet; sistemli/CRM tabanlı bir yönetim var","Kısmen; sistem var ama düzenli kullanılmıyor","Hayır; müşteri verisi tamamen kurucunun kontrolünde/hafızasında") },
-  { id:"FD-C03", layer:"core", category:"creativeSystem", type:"evidence", weight:2,
-    title:"Operasyonel Bağımlılık",
-    text:"Günlük iş operasyonlarınız kişiye mi bağlı yoksa sistemlerle mi ilerliyor?",
-    tooltip:"Kritik operasyon adımları kurucu onayı olmadan tamamlanabiliyor mu?",
-    options: ev("Evet; sistemler ve görev tanımları kurucudan bağımsız işliyor","Kısmen; kurucu onayı ve müdahalesi sıkça gerekiyor","Hayır; kurucu olmadan operasyon tıkanıyor") },
+  // ── MARKA NETLİĞİ ──────────────────────────────────────────
+  {
+    id: "MN-C01", layer: "core", category: "brandClarity", type: "scale", weight: 3,
+    title: "Konumlandırma Tanımı",
+    text: "Markanızın ne yaptığını, kime hitap ettiğini ve rakiplerinden nasıl ayrıştığını — bu üçünü birden tek cümlede anlatabilir misiniz?",
+    tooltip: "Yazılı konumlandırma belgenizin varlığı ve ekip içerisindeki tutarlılığı.",
+    options: sc("MN-C01",
+      "Hayır, bunu hiç oturtamadık",
+      "Kafamda şekilleniyor ama net söyleyemiyorum",
+      "Söyleyebiliyorum ama ekibimiz farklı şeyler söylüyor",
+      "Tutarlı bir cevabımız var, ama yazılı değil",
+      "Yazılı, ekiple paylaşılmış ve aktif kullandığımız bir tanımımız var"
+    )
+  },
+  {
+    id: "MN-C02", layer: "core", category: "brandClarity", type: "scale", weight: 3,
+    title: "Farklılaşma Kanıtı",
+    text: '"Neden sizi seçmeliyim?" sorusuna ekibiniz ne kadar net ve tutarlı yanıt verebiliyor?',
+    tooltip: "Sektördeki diğer alternatiflerden sizi ayıran somut ve özgün nedenler.",
+    options: sc("MN-C02",
+      "Net bir yanıt yok, herkes farklı şey söylüyor",
+      "Genel bir cevabımız var ama güçlü ve özgün değil",
+      "İyi bir cevabımız var ama rakibimiz de aynısını söyleyebilir",
+      "Güçlü ve tutarlı bir farklılaşma argümanımız var",
+      "Test edilmiş, müşteride karşılık bulan özgün bir argümanımız var"
+    )
+  },
+  {
+    id: "MN-C03", layer: "core", category: "brandClarity", type: "scale", weight: 2,
+    title: "Mesaj Tutarlılığı",
+    text: "Web sitenizi, sosyal medyanızı ve son yaptığınız satış görüşmesini aynı anda düşünün. Aynı marka dili mi konuşuyor?",
+    tooltip: "Kanallar arası ton ve mesaj bütünlüğü.",
+    options: sc("MN-C03",
+      "Her kanal sanki farklı bir markaya ait gibi",
+      "Tutarsızlık belirgin, fark edilebiliyor",
+      "Çoğunlukla benzer ama zaman zaman kopukluk var",
+      "Genel olarak tutarlı, küçük sapmalar oluyor",
+      "Tüm kanallarda bütünleşik ve tanınabilir bir mesaj var"
+    )
+  },
+
+  // ── PREMİUM ALGI ───────────────────────────────────────────
+  {
+    id: "PA-C01", layer: "core", category: "premiumPerception", type: "scale", weight: 3,
+    title: "Görsel Kimlik Kalitesi",
+    text: "Bir potansiyel müşteri sizi ilk kez görsel olarak gördüğünde — web sitesi, sosyal medya veya kartvizit — ne tepki verdiğini düşünüyorsunuz?",
+    tooltip: "Görsel kimliğinizin ilk izlenim ve kalite algısı gücü.",
+    options: sc("PA-C01",
+      "\"Bu kim?\" deyip geçiyor olabilir, dikkat çekmiyoruz",
+      "Fark ediyor ama etkilenmiyor",
+      "Yeterli buluyor ama öne çıkmıyoruz",
+      "Güven veriyor ve ilgi çekiyor",
+      "\"Bu ciddi bir marka\" izlenimi yaratıyor"
+    )
+  },
+  {
+    id: "PA-C02", layer: "core", category: "premiumPerception", type: "scale", weight: 3,
+    title: "Profesyonel Tasarım Kanıtı",
+    text: "Görsel kimliğiniz son 3 yıl içinde profesyonel bir ekip tarafından tasarlandı veya güncellendi mi?",
+    tooltip: "Marka kimliğinde uzman dokunuşunun güncelliği.",
+    options: sc("PA-C02",
+      "Hayır, hiç profesyonel dokunuş almadı",
+      "Çok eski, 5+ yıl önce yapıldı",
+      "3–5 yıl önce yapıldı",
+      "Son 1–3 yılda kısmen güncellendi",
+      "Son 1 yıl içinde sistematik ve kapsamlı bir çalışma yapıldı"
+    )
+  },
+  {
+    id: "PA-C03", layer: "core", category: "premiumPerception", type: "scale", weight: 2,
+    reverseScored: true,
+    title: "Fiyat İtirazı Sıklığı",
+    text: "Satış görüşmelerinde fiyatla ilgili itiraz veya olumsuz geri bildirim ne sıklıkla alıyorsunuz?",
+    tooltip: "Bu soru ters puanlıdır; itirazların azlığı yüksek algı gücünü gösterir.",
+    options: sc("PA-C03",
+      "Neredeyse her görüşmede fiyat sorgulanıyor",
+      "Sık alıyoruz, rahatsız edici boyutta",
+      "Zaman zaman alıyoruz",
+      "Nadiren alıyoruz",
+      "Fiyat, sunduğumuz değerin karşılığı olarak kabul görüyor"
+    )
+  },
+
+  // ── STORYTELLING GÜCÜ ──────────────────────────────────────
+  {
+    id: "ST-C01", layer: "core", category: "storytelling", type: "scale", weight: 3,
+    title: "Müşteri Ne Söylüyor",
+    text: "Bir müşteriniz sizi başka birine önerirken sizin hakkınızda ne söylüyor?",
+    tooltip: "Müşterilerinizin kulaktan kulağa aktardığı hikaye ve farkınız.",
+    options: sc("ST-C01",
+      "Bilmiyoruz, hiç sormadık",
+      "\"İyi iş yapıyorlar\" gibi genel şeyler söylüyor",
+      "Hizmetimizi tarif ediyor ama neden bizi seçtiklerini değil",
+      "Farkımızı hissettiren bir şeyler söylüyor",
+      "Başkalarından bizi ayıran özgün bir şey söylüyor — bunu biliyoruz"
+    )
+  },
+  {
+    id: "ST-C02", layer: "core", category: "storytelling", type: "scale", weight: 1,
+    title: "Marka Sesi Tutarlılığı",
+    text: "Farklı kişiler markanız adına içerik ürettiğinde — sosyal medya, e-posta, teklif — aynı tonu mu yakalıyor?",
+    tooltip: "Marka tonunun belgelenmiş olması ve ekip tarafından tutarlı uygulanması.",
+    options: sc("ST-C02",
+      "Her içerik farklı biri tarafından yazılmış gibi hissettiriyor",
+      "Benzerlik var ama tutarsızlık belirgin",
+      "Çoğunlukla benzer, zaman zaman kayıyor",
+      "Tutarlı, ama yazılı bir kılavuz yok",
+      "Ses kılavuzumuz var ve aktif kullanılıyor"
+    )
+  },
+
+  // ── DİJİTAL GÜVEN VE SATIŞ ETKİSİ ─────────────────────────
+  {
+    id: "DG-C01", layer: "core", category: "digitalTrust", type: "scale", weight: 3,
+    title: "Rakiple Kıyasla Web Sitesi",
+    text: "Sektörünüzdeki güçlü bir rakibinizin web sitesiyle kendinizi kıyasladığınızda ne görüyorsunuz?",
+    tooltip: "Web sitenizin rakiplere kıyasla güven ve prestij düzeyi.",
+    options: sc("DG-C01",
+      "Rakip çok daha güçlü görünüyor, fark büyük",
+      "Rakip daha iyi ama fark kapatılabilir",
+      "Benzer düzeydeyiz",
+      "Bizim sitemiz daha güçlü",
+      "Sektörümüzde referans sayılabilecek düzeyde olduğumuzu düşünüyoruz"
+    )
+  },
+  {
+    id: "DG-C02", layer: "core", category: "digitalTrust", type: "scale", weight: 3,
+    title: "Sosyal Kanıt Görünürlüğü",
+    text: "Müşteri referanslarınız, yorumlarınız veya vaka çalışmalarınız dijitalde ne kadar aktif?",
+    tooltip: "Memnun müşterilerinizin başarılarının dijital temas noktalarında sunumu.",
+    options: sc("DG-C02",
+      "Hiç yok",
+      "Var ama bulmak zor, öne çıkmıyor",
+      "Birkaç tane var, sistematik değil",
+      "Görünür ve güncel",
+      "Aktif yönetiliyor, sürekli ekleniyor"
+    )
+  },
+  {
+    id: "DG-EK1", layer: "core", category: "digitalTrust", type: "scale", weight: 2,
+    title: "Dijital Kanallardan Gelen Lead",
+    text: "Son 3 ayda dijital varlığınız üzerinden — web, sosyal medya, e-posta — kaç potansiyel müşteri talebi aldınız?",
+    tooltip: "Dijital kanalların ticari talep üretme performansı. Takip edilmiyorsa 1 puan alır.",
+    options: sc("DG-EK1",
+      "Hiç almadık",
+      "1–5 arası",
+      "5–20 arası",
+      "20'den fazla",
+      "Takip etmiyoruz"
+    )
+  },
+
+  // ── KREATİF SİSTEM VE TUTARLILIK ───────────────────────────
+  {
+    id: "KS-C01", layer: "core", category: "creativeSystem", type: "scale", weight: 3,
+    title: "Marka Kılavuzu",
+    text: "Markanız için hazırlanmış bir marka kılavuzu — brand guidelines — var mı?",
+    tooltip: "Görsel ve tonal standartların belirlendiği rehber doküman.",
+    options: sc("KS-C01",
+      "Hayır, hiç yok",
+      "Var ama eksik ya da güncelliğini yitirmiş",
+      "Temel düzeyde var",
+      "Kapsamlı var ama aktif kullanılmıyor",
+      "Kapsamlı, güncel ve ekip tarafından aktif kullanılıyor"
+    )
+  },
+  {
+    id: "KS-C02", layer: "core", category: "creativeSystem", type: "scale", weight: 2,
+    title: "Platform Kimlik Bütünlüğü",
+    text: "Instagram'ınızı, LinkedIn'inizi ve web sitenizi aynı anda açın. Üçü de aynı markayı anlatıyor mu?",
+    tooltip: "Farklı platformlar arası görsel ve içerik bütünlüğü.",
+    options: sc("KS-C02",
+      "Her platform sanki farklı bir markaya ait gibi",
+      "Benzerlik var ama bütünlük hissedilmiyor",
+      "Belirli bir benzerlik var ama sistem bütünlüğü yok",
+      "Büyük ölçüde bütünleşik, ince sapmalar var",
+      "Tüm platformlar güçlü ve bütünleşik bir kimlik sistemi oluşturuyor"
+    )
+  },
 ] as const;
 
 export function getCoreQuestionsByCategory(category: import("../diagnosis-types").CategoryKey): readonly DiagnosisQuestion[] {

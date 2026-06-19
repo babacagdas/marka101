@@ -382,19 +382,19 @@ export function detectConflictSignals(
   const signals: ConflictSignal[] = [];
 
   const paC01 = answers["PA-C01"]; const paC02 = answers["PA-C02"];
-  if (isScaleAnswer(paC01) && paC01 >= 4 && isEvidenceAnswer(paC02) && paC02 === "hayır") {
+  if (isScaleAnswer(paC01) && paC01 >= 4 && paC02 !== undefined && Number(paC02) <= 2) {
     signals.push({ id:"CONF-01", label:"Görsel kalite / profesyonel tasarım uyumsuzluğu",
       description:"Görsel kimliği güçlü değerlendiriyor ama profesyonel tasarım çalışması olmadığını belirtiyor." });
   }
 
   const stC01 = answers["ST-C01"]; const stC02 = answers["ST-C02"];
-  if (isScaleAnswer(stC01) && stC01 >= 4 && isEvidenceAnswer(stC02) && stC02 === "hayır") {
+  if (isScaleAnswer(stC01) && stC01 >= 4 && stC02 !== undefined && Number(stC02) <= 3) {
     signals.push({ id:"CONF-02", label:"Hikâye gücü / ses kılavuzu yokluğu",
       description:"Güçlü hikâye sahibi olduğunu düşünüyor ama yazılı ses kılavuzu yok." });
   }
 
   const dgC01 = answers["DG-C01"]; const dgC02 = answers["DG-C02"];
-  if (isScaleAnswer(dgC01) && dgC01 >= 4 && isEvidenceAnswer(dgC02) && dgC02 === "hayır") {
+  if (isScaleAnswer(dgC01) && dgC01 >= 4 && dgC02 !== undefined && Number(dgC02) <= 2) {
     signals.push({ id:"CONF-03", label:"Dijital güven / sosyal kanıt boşluğu",
       description:"Web sitesinin güçlü olduğunu düşünüyor ama görünür sosyal kanıt yok." });
   }
@@ -415,7 +415,7 @@ export function detectConflictSignals(
 
   // 2. CONTRADICTION_PREMIUM_PRICE
   const isPremiumIntended = context && (context.brandStage === "premium" || context.growthGoal === "price_increase");
-  const hasHighPriceObjections = answers["PA-C03"] === "evet";
+  const hasHighPriceObjections = answers["PA-C03"] !== undefined && Number(answers["PA-C03"]) <= 2;
   if (isPremiumIntended && hasHighPriceObjections) {
     signals.push({
       id: "CONTRADICTION_PREMIUM_PRICE",
@@ -436,7 +436,7 @@ export function detectConflictSignals(
   }
 
   // 4. CONTRADICTION_POSITIONING_VALUE
-  const hasValuePropositionGap = answers["MN-C02"] !== undefined && answers["MN-C02"] !== "evet";
+  const hasValuePropositionGap = answers["MN-C02"] !== undefined && Number(answers["MN-C02"]) <= 3;
   if (hasAudienceClarityClaim && hasValuePropositionGap) {
     signals.push({
       id: "CONTRADICTION_POSITIONING_VALUE",
@@ -558,7 +558,7 @@ export function computeExplainability(
   }
 
   const mn02 = answers["MN-C02"];
-  if (mn02 !== undefined && mn02 !== "evet") {
+  if (mn02 !== undefined && Number(mn02) <= 3) {
     activeSignals.push({
       key: "VALUE_PROPOSITION_MISSING",
       label: "Rakiplerden ayrışan değer net değil",
@@ -604,7 +604,7 @@ export function computeExplainability(
   }
 
   const pa02 = answers["PA-C02"];
-  if (pa02 !== undefined && pa02 !== "evet") {
+  if (pa02 !== undefined && Number(pa02) <= 3) {
     activeSignals.push({
       key: "NO_PROFESSIONAL_DESIGN",
       label: "Son 3 yıl içinde profesyonel görsel kimlik güncellemesi yapılmamış",
@@ -614,7 +614,7 @@ export function computeExplainability(
   }
 
   const pa03 = answers["PA-C03"];
-  if (pa03 !== undefined && pa03 === "evet") {
+  if (pa03 !== undefined && Number(pa03) <= 2) {
     activeSignals.push({
       key: "PRICE_OBJECTION_HIGH",
       label: "Görüşmelerde çok sık fiyat itirazı alınıyor",
@@ -635,7 +635,7 @@ export function computeExplainability(
   }
 
   const st02 = answers["ST-C02"];
-  if (st02 !== undefined && st02 !== "evet") {
+  if (st02 !== undefined && Number(st02) < 5) {
     activeSignals.push({
       key: "VOICE_GUIDE_MISSING",
       label: "Marka sesini tanımlayan yazılı bir kılavuz veya ton profili yok",
@@ -656,7 +656,7 @@ export function computeExplainability(
   }
 
   const dg02 = answers["DG-C02"];
-  if (dg02 !== undefined && dg02 !== "evet") {
+  if (dg02 !== undefined && Number(dg02) <= 3) {
     activeSignals.push({
       key: "SOCIAL_PROOF_GAP",
       label: "Müşteri referansları veya vaka çalışmaları dijitalde yeterince görünür değil",
@@ -667,7 +667,7 @@ export function computeExplainability(
 
   // 5. creativeSystem
   const ks01 = answers["KS-C01"];
-  if (ks01 !== undefined && ks01 !== "evet") {
+  if (ks01 !== undefined && Number(ks01) <= 3) {
     activeSignals.push({
       key: "GUIDELINES_MISSING",
       label: "Marka kılavuzu (brand guidelines) belgesi bulunmuyor veya güncel değil",
@@ -689,7 +689,7 @@ export function computeExplainability(
   // 6. Sektörel
   if (context.sector === "health") {
     const smh01 = answers["SM-H01"];
-    if (smh01 !== undefined && smh01 !== "evet") {
+    if (smh01 !== undefined && Number(smh01) <= 3) {
       activeSignals.push({
         key: "HEALTH_EXPERTISE_UNCLEAR",
         label: "Uzmanlık ve nitelikler dijitalde yeterince açık sunulmuyor",
@@ -698,7 +698,7 @@ export function computeExplainability(
       });
     }
     const smh02 = answers["SM-H02"];
-    if (smh02 !== undefined && smh02 !== "evet") {
+    if (smh02 !== undefined && Number(smh02) <= 3) {
       activeSignals.push({
         key: "HEALTH_SOCIAL_PROOF_GAP",
         label: "Google veya web üzerinde aktif hasta yorum yönetimi yok",
@@ -726,7 +726,7 @@ export function computeExplainability(
       });
     }
     const smr02 = answers["SM-R02"];
-    if (smr02 !== undefined && smr02 !== "evet") {
+    if (smr02 !== undefined && Number(smr02) <= 3) {
       activeSignals.push({
         key: "REALESTATE_STORY_GAP",
         label: "Projeler vaka çalışması/hikaye formatında anlatılmıyor",
@@ -735,7 +735,7 @@ export function computeExplainability(
       });
     }
     const smr03 = answers["SM-R03"];
-    if (smr03 !== undefined && smr03 !== "evet") {
+    if (smr03 !== undefined && Number(smr03) <= 3) {
       activeSignals.push({
         key: "REALESTATE_PRO_PHOTO_GAP",
         label: "Son 6 ayda profesyonel fotoğraf veya video çekimi yapılmamış",
@@ -745,7 +745,7 @@ export function computeExplainability(
     }
   } else if (context.sector === "b2b_industrial") {
     const smb01 = answers["SM-B01"];
-    if (smb01 !== undefined && smb01 !== "evet") {
+    if (smb01 !== undefined && Number(smb01) <= 3) {
       activeSignals.push({
         key: "B2B_COMMUNICATION_WEAK",
         label: "Uluslararası standartta kurumsal katalog veya sunum materyali eksik",
@@ -754,7 +754,7 @@ export function computeExplainability(
       });
     }
     const smb02 = answers["SM-B02"];
-    if (smb02 !== undefined && smb02 !== "evet") {
+    if (smb02 !== undefined && Number(smb02) <= 3) {
       activeSignals.push({
         key: "B2B_REFERRAL_GAP",
         label: "Referanslar ve tamamlanan işler dijitalde görünür değil",
@@ -782,7 +782,7 @@ export function computeExplainability(
       });
     }
     const smg02 = answers["SM-G02"];
-    if (smg02 !== undefined && smg02 !== "evet") {
+    if (smg02 !== undefined && Number(smg02) <= 3) {
       activeSignals.push({
         key: "GENERAL_SOCIAL_PROOF_GAP",
         label: "Müşteri referansları ve sonuç örnekleri dijitalde eksik",
@@ -842,7 +842,7 @@ export function computeExplainability(
     });
   }
   const mn02_off = answers["MN-C02"];
-  if (mn02_off !== undefined && mn02_off !== "evet") {
+  if (mn02_off !== undefined && Number(mn02_off) <= 3) {
     activeSignals.push({
       key: "OFFER_NOT_DIFFERENTIATED",
       label: "Teklif rakiplerden ayrışmıyor",
@@ -861,8 +861,9 @@ export function computeExplainability(
   }
 
   // Trust Architecture Signals
+  // Trust Architecture Signals
   const dg02_tr = answers["DG-C02"];
-  if (dg02_tr !== undefined && dg02_tr !== "evet") {
+  if (dg02_tr !== undefined && Number(dg02_tr) < 5) {
     activeSignals.push({
       key: "TRUST_PROOF_GAP",
       label: "Sosyal kanıt veya referans görünürlüğü eksik",
@@ -871,10 +872,10 @@ export function computeExplainability(
     });
   }
   const hasSectorSocialProofGap = 
-    (context.sector === "health" && answers["SM-H02"] !== undefined && answers["SM-H02"] !== "evet") ||
-    (context.sector === "realestate" && answers["SM-R02"] !== undefined && answers["SM-R02"] !== "evet") ||
-    (context.sector === "b2b_industrial" && answers["SM-B02"] !== undefined && answers["SM-B02"] !== "evet") ||
-    (context.sector === "general" && answers["SM-G02"] !== undefined && answers["SM-G02"] !== "evet");
+    (context.sector === "health" && answers["SM-H02"] !== undefined && Number(answers["SM-H02"]) < 5) ||
+    (context.sector === "realestate" && answers["SM-R02"] !== undefined && Number(answers["SM-R02"]) < 5) ||
+    (context.sector === "b2b_industrial" && answers["SM-B02"] !== undefined && Number(answers["SM-B02"]) < 5) ||
+    (context.sector === "general" && answers["SM-G02"] !== undefined && Number(answers["SM-G02"]) < 5);
   if (hasSectorSocialProofGap) {
     const activeSectorQId = context.sector === "health" ? "SM-H02" : context.sector === "realestate" ? "SM-R02" : context.sector === "b2b_industrial" ? "SM-B02" : "SM-G02";
     activeSignals.push({
@@ -885,11 +886,10 @@ export function computeExplainability(
     });
   }
   const hasAuthorityGap =
-    (context.sector === "health" && answers["SM-H01"] !== undefined && answers["SM-H01"] !== "evet") ||
-    (context.sector === "b2b_industrial" && answers["SM-B01"] !== undefined && answers["SM-B01"] !== "evet") ||
-    (context.sector === "general" && answers["TR-GN"] !== undefined && answers["TR-GN"] !== "evet");
+    (context.sector === "health" && answers["SM-H01"] !== undefined && Number(answers["SM-H01"]) < 5) ||
+    (context.sector === "b2b_industrial" && answers["SM-B01"] !== undefined && Number(answers["SM-B01"]) < 5);
   if (hasAuthorityGap) {
-    const activeSectorQId = context.sector === "health" ? "SM-H01" : context.sector === "b2b_industrial" ? "SM-B01" : "TR-GN";
+    const activeSectorQId = context.sector === "health" ? "SM-H01" : "SM-B01";
     activeSignals.push({
       key: "TRUST_PRESS_MISSING",
       label: "Otorite kanıtı veya uzmanlık belgeleri eksik",
@@ -909,7 +909,7 @@ export function computeExplainability(
     });
   }
   const pa03_pr = answers["PA-C03"];
-  if (pa03_pr !== undefined && pa03_pr === "evet") {
+  if (pa03_pr !== undefined && Number(pa03_pr) <= 2) {
     activeSignals.push({
       key: "PREMIUM_PRICING_CLASH",
       label: "Premium hedeflere rağmen yüksek fiyat itirazı alınıyor",
@@ -918,7 +918,7 @@ export function computeExplainability(
     });
   }
   const st02_pr = answers["ST-C02"];
-  if (st02_pr !== undefined && st02_pr !== "evet") {
+  if (st02_pr !== undefined && Number(st02_pr) < 5) {
     activeSignals.push({
       key: "PREMIUM_MESSAGING_WEAK",
       label: "Marka sesini tanımlayan rehber veya ton kılavuzu eksik",
@@ -963,8 +963,8 @@ export function computeExplainability(
 
   // ── Perception Gap Engine ───────────────────────────────────────────
   const isPremiumIntended = context.brandStage === "premium" || context.growthGoal === "price_increase";
-  const hasPriceObjections = answers["PA-C03"] === "evet";
-  const hasWeakSocialProof = answers["DG-C02"] === "hayır" || answers["DG-C02"] === "kısmen";
+  const hasPriceObjections = answers["PA-C03"] !== undefined && Number(answers["PA-C03"]) <= 2;
+  const hasWeakSocialProof = answers["DG-C02"] !== undefined && Number(answers["DG-C02"]) <= 3;
   const hasLowBrandClarity = categoryScores["brandClarity"].normalizedScore < 60;
   const hasLowPremiumPerception = categoryScores["premiumPerception"].normalizedScore < 60;
 

@@ -1,37 +1,23 @@
-// src/features/diagnoses/components/public/Logo.tsx
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
 
 interface LogoProps {
-  /** Desktop genişlik px (default 160) */
-  width?: number
-  /** Desktop yükseklik px (default 48) */
-  height?: number
   className?: string
+  width?: number
+  height?: number
 }
 
-export function Logo({ width = 160, height = 48, className = '' }: LogoProps) {
-  const [hasError, setHasError] = useState(false)
-
-  if (hasError) {
-    return (
-      <span className={`font-bold text-on-background text-base tracking-tight ${className}`}>
-        Deep Creative Marka101
-      </span>
-    )
-  }
-
+export function Logo({ className = '', width = 240, height = 72 }: LogoProps) {
   return (
     <Image
       src="/deep-creative-logo.png"
       alt="Deep Creative"
       width={width}
       height={height}
-      className={`object-contain w-auto ${className}`}
-      onError={() => setHasError(true)}
+      className={`object-contain h-12 md:h-14 w-auto ${className}`}
       priority
     />
   )
 }
+

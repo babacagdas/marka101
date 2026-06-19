@@ -37,9 +37,22 @@ function isBrandStage(v: unknown): v is BrandStage {
   return typeof v === "string" && (VALID_BRAND_STAGES as readonly string[]).includes(v);
 }
 
+function getSectorKey(v: unknown): SectorKey {
+  if (v === "health" || v === "realestate" || v === "b2b_industrial") return v;
+  return "general";
+}
+
+function getBusinessModel(v: unknown): BusinessModel {
+  if (v === "b2b" || v === "hybrid_b2b") return "b2b";
+  if (v === "b2c" || v === "hybrid_b2c") return "b2c";
+  return "hybrid";
+}
+
 function buildBrandContext(ca: Readonly<Record<string, DiagnosisAnswerValue>>): BrandContext | null {
-  const sector = ca["BG-01"]; const businessModel = ca["BG-02"];
-  const brandStage = ca["BG-03"]; const growthGoal = ca["BG-04"];
+  const sector = getSectorKey(ca["BG-01"]);
+  const businessModel = getBusinessModel(ca["BG-02"]);
+  const brandStage = ca["BG-03"] as BrandStage;
+  const growthGoal = ca["BG-04"];
   const mainProblem = ca["BG-05"];
   if (!isSectorKey(sector) || !isBusinessModel(businessModel) || !isBrandStage(brandStage) ||
       typeof growthGoal !== "string" || typeof mainProblem !== "string") return null;
